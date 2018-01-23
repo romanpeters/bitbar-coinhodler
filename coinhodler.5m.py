@@ -75,7 +75,9 @@ def main():
 
     holdings, total_value = filter_output(token)
     refresh_interval = sys.argv[0].split('.')[1]
-    ft_value = total_value/1000
+    ft_value = total_value
+    if ft_value > 1000:
+        ft_value = total_value/1000
     print("{:.1f}| size=12".format(ft_value))
     print("---")
     print("Portfolio: {:,.2f} | href=https://coinhodler.io".format(total_value))
