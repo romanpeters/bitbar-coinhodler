@@ -16,6 +16,8 @@
 import sys
 import requests
 import json
+from builtins import input
+
 
 token = ""  # saved from user input
 currency = ""  # saved from user input
@@ -40,12 +42,17 @@ def get_info():
     # get currency
     while not currency:
         currency = input('Enter your prefered fiat currency code (EUR, USD, etc.): ').upper()
-        url = f"https://cdn.api.coinranking.com/v1/public/coins?base={currency}"
+        url = "https://cdn.api.coinranking.com/v1/public/coins?base={}".format(currency)
         req = requests.get(url)
         json_value = json.loads(req.text)
         if json_value['status'] != 'success':
             print(json_value)
             currency = None
+
+    # get symbol
+    symbol = input('Enter your prefered fiat currency symbol (€, $, etc.) or leave empty for no symbol: ')
+    if symbol:
+        currency = "{}/{}".format(currency, symbol)
 
     # read
     with open(sys.argv[0], 'r') as f:
@@ -56,9 +63,9 @@ def get_info():
     for line in app:
         if '=' in line:
             if line.startswith('token'):
-                line = f'token = "{token}"  # saved from user input\n'
+                line = 'token = "{}"  # saved from user input\n'.format(token)
             elif line.startswith('currency'):
-                line = f'currency = "{currency}"  # saved from user input\n'
+                line = 'currency = "{}"  # saved from user input\n'.format(currency)
         new_app.append(line)
 
     # write
@@ -73,17 +80,17 @@ def get_holdings(token):
     return holdings
 
 
-def get_values(holdings, base='EUR'):
+def get_values(holdings, base):
     ids = [str(h['coinrankingId']) for h in holdings]
-    url = f"https://cdn.api.coinranking.com/v1/public/coins?base={base}&ids={'%2C'.join(ids)}"
+    url = "https://cdn.api.coinranking.com/v1/public/coins?base={}&ids={}".format(base, '%2C'.join(ids))
     req = requests.get(url)
     values = json.loads(req.text)
     return values
 
 
-def filter_output(token):
+def filter_output(token, base):
     holdings = get_holdings(token)
-    values = get_values(holdings)
+    values = get_values(holdings, base)
     result = []
     total_value = 0
 
@@ -103,14 +110,19 @@ def filter_output(token):
         result_item['value'] = float(item['price']) * float(hodl['amount'])
         total_value += result_item['value']
         result.append(result_item)
-    return sorted(result, key=lambda k: k['value'])[::-1] , total_value
+    return sorted(result, key=lambda k: k['value'])[::-1], total_value
 
 
 def main():
     if not token or not currency:
         get_info()
 
-    holdings, total_value = filter_output(token)
+    if '/' in currency:
+        base, symbol = currency.split('/')
+    else:
+        base, symbol = currency, ''
+
+    holdings, total_value = filter_output(token, base)
     refresh_interval = sys.argv[0].split('.')[1]
 
     # format value
@@ -125,18 +137,20 @@ def main():
         print("{:.2f}| size=12".format(ft_value))
 
     print("---")
-    print("Portfolio: {:,.2f} | href=https://coinhodler.io".format(total_value))
+    print("Portfolio: {}{:,.2f} | href=https://coinhodler.io".format(symbol, total_value))
     print("---")
     print('Asset\tPrice\t\tAmount\t\tValuation\t24h Change')
     for h in holdings:
-        print('{:<6s}\t{:<12,.2f} \t{:<13.2f}\t{:<12,.2f}\t{:.2f}% | color={:s} href={:s}'.format(
+        print('{:<6s}\t{}{:<12,.2f}\t{:<13.2f}\t{}{:<12,.2f}\t{:.2f}% | color={:s} href={:s}'.format(
                                             h['symbol'],
+                                            symbol,
                                             h['price'],
                                             h['amount'],
+                                            symbol,
                                             h['value'],
                                             h['change'],
                                             'darkred' if h['change'] < 0 else 'darkgreen',
-                                            f"https://coinmarketcap.com/currencies/{h['name']}/"
+                                            "https://coinmarketcap.com/currencies/{}/".format(h['name'])
                                             ))
 
 
