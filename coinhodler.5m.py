@@ -12,14 +12,30 @@ import requests
 import json
 
 
-def get_token() -> str or None:
-    passphrase = input('Paste your coinhodler.io passphrase here: ')
-    url = 'https://api.coinhodler.io/v1/restore'
-    req = requests.post(url, data={'passphrase': passphrase})
-    json_value = json.loads(req.text)
-    if json_value['status'] == 'fail':
-        raise Exception(json_value['code'])
+def get_token() -> str:
+    passphrase = None
+    while not passphrase:
+        passphrase = input('Paste your coinhodler.io passphrase here: ')
+        url = 'https://api.coinhodler.io/v1/restore'
+        req = requests.post(url, data={'passphrase': passphrase})
+        json_value = json.loads(req.text)
+        if json_value['status'] != 'success':
+            print(json_value)
+            passphrase = None
     return json_value['data']['token']
+
+
+def get_currency() -> str:
+    currency = None
+    while not currency:
+        currency = input('Enter your prefered fiat currency code (EUR, USD, etc.): ').upper()
+        url = f"https://cdn.api.coinranking.com/v1/public/coins?base={currency}"
+        req = requests.get(url)
+        json_value = json.loads(req.text)
+        if json_value['status'] != 'success':
+            print(json_value)
+            currency = None
+    return currency
 
 
 def get_holdings(token):
@@ -64,14 +80,16 @@ def filter_output(token):
 
 def main():
     try:
-        with open('coinhodler_token.txt', 'r') as f:
-            token = f.readline()
-        print('Token loaded!\n')
-    except FileNotFoundError:
+        with open('coinhodler_data.txt', 'r') as f:
+            token, currency = f.readlines()
+            token, currency = token.strip(), currency.strip()
+        print(f'Token loaded!\nLanguage: {currency}\n')
+    except (FileNotFoundError, ValueError):
         token = get_token()
-        with open('coinhodler_token.txt', 'w+') as f:
-            f.write(token)
-        print('Token saved!\n')
+        currency = get_currency()
+        with open('coinhodler_data.txt', 'w+') as f:
+            f.write(f"{token}\n{currency}")
+        print(f'Token saved!\nFiat value: {currency}\n')
 
     holdings, total_value = filter_output(token)
     refresh_interval = sys.argv[0].split('.')[1]
