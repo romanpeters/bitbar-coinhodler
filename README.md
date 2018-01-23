@@ -1,6 +1,8 @@
 # BitBar Coinhodler
 BitBar plug-in for coinhodler.io
 
+![ScreenShot](https://raw.github.com/romanpeters/bitbar_coinhodler/master/sample.png)
+
 BitBar for macOS: https://getbitbar.com  
 Coinhodler: https://coinhodler.io
 
