@@ -139,9 +139,9 @@ def main():
     print("---")
     print("Portfolio: {}{:,.2f} | href=https://coinhodler.io".format(symbol, total_value))
     print("---")
-    print('Asset\tPrice\t\tAmount\t\tValuation\t24h Change')
+    print('Asset\tPrice\t\tAmount\t\tValuation\t\t24h Change')
     for h in holdings:
-        print('{:<6s}\t{}{:<12,.2f}\t{:<13.2f}\t{}{:<12,.2f}\t{:.2f}% | color={:s} href={:s}'.format(
+        print('{:<6s}\t{}{:<12,.2f}\t{:<13.2f}\t{}{:<12,.2f}     \t{:.2f}% | color={:s} href={:s}'.format(
                                             h['symbol'],
                                             symbol,
                                             h['price'],
