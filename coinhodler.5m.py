@@ -11,8 +11,8 @@ import sys
 import requests
 import json
 
-token = ""
-currency = ""
+token = "492f3870-71ca-4ef8-9a8b-35fd09702393"  # saved from user input
+currency = "EUR"  # saved from user input
 
 
 def get_info():
@@ -60,33 +60,6 @@ def get_info():
         f.writelines(new_app)
 
 
-# def get_token() -> str:
-#     passphrase = None
-#     while not passphrase:
-#         print("Run in terminal...")
-#         passphrase = input('Paste your coinhodler.io passphrase here: ')
-#         url = 'https://api.coinhodler.io/v1/restore'
-#         req = requests.post(url, data={'passphrase': passphrase})
-#         json_value = json.loads(req.text)
-#         if json_value['status'] != 'success':
-#             print(json_value)
-#             passphrase = None
-#     return json_value['data']['token']
-#
-#
-# def get_currency() -> str:
-#     currency = None
-#     while not currency:
-#         currency = input('Enter your prefered fiat currency code (EUR, USD, etc.): ').upper()
-#         url = f"https://cdn.api.coinranking.com/v1/public/coins?base={currency}"
-#         req = requests.get(url)
-#         json_value = json.loads(req.text)
-#         if json_value['status'] != 'success':
-#             print(json_value)
-#             currency = None
-#     return currency
-
-
 def get_holdings(token):
     url = 'https://api.coinhodler.io/v1/hodler/rows'
     req = requests.get(url, headers={'X-Access-Token': token})
@@ -128,27 +101,23 @@ def filter_output(token):
 
 
 def main():
-    # try:
-    #     with open('coinhodler_data.txt', 'r') as f:
-    #         token, currency = f.readlines()
-    #         token, currency = token.strip(), currency.strip()
-    #     print(f'Token loaded!\nLanguage: {currency}\n')
-    # except (FileNotFoundError, ValueError) as e:
-    #     print(e)
-    #     token = get_token()
-    #     currency = get_currency()
-    #     with open('coinhodler_data.txt', 'w+') as f:
-    #         f.write(f"{token}\n{currency}")
-    #     print(f'Token saved!\nFiat value: {currency}\n')
-
-    get_info()
+    if not token or not currency:
+        get_info()
 
     holdings, total_value = filter_output(token)
     refresh_interval = sys.argv[0].split('.')[1]
-    ft_value = total_value
-    if ft_value > 1000:
+
+    # format value
+    if total_value > 10000:
         ft_value = total_value/1000
-    print("{:.1f}| size=12".format(ft_value))
+        print("{:.1f}| size=12".format(ft_value))
+    elif total_value > 1000:
+        ft_value = int(total_value)
+        print("{}| size=12".format(ft_value))
+    else:
+        ft_value = total_value
+        print("{:.2f}| size=12".format(ft_value))
+
     print("---")
     print("Portfolio: {:,.2f} | href=https://coinhodler.io".format(total_value))
     print("---")
