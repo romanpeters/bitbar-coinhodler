@@ -1,18 +1,24 @@
-#!/Users/romanpeters/Projects/Python/bitbar/venv/bin/python
+#!/usr/bin/env python
+# coding=utf-8
+
 # -*- coding: utf-8 -*-
 # <bitbar.title>Coinhodler Portfolio</bitbar.title>
 # <bitbar.version>v1.0.0</bitbar.version>
 # <bitbar.author>Roman Peters</bitbar.author>
 # <bitbar.author.github>romanpeters</bitbar.author.github>
 # <bitbar.desc>Show current portfolio from coinhodler.io</bitbar.desc>
-# <bitbar.image>https://coinhodler.io/static/media/logo.a996433a.svg</bitbar.image>
+# <bitbar.image>hhttps://github.com/romanpeters/bitbar_coinhodler/blob/master/sample.png</bitbar.image>
 # <bitbar.dependencies>python</bitbar.dependencies>
+# <bitbar.abouturl>https://github.com/romanpeters/bitbar_coinhodler</bitbar.abouturl>
+
+# See https://github.com/romanpeters/bitbar_coinhodler for more info
+
 import sys
 import requests
 import json
 
-token = "492f3870-71ca-4ef8-9a8b-35fd09702393"  # saved from user input
-currency = "EUR"  # saved from user input
+token = ""  # saved from user input
+currency = ""  # saved from user input
 
 
 def get_info():
