@@ -19,8 +19,8 @@ import json
 from builtins import input
 
 
-token = ""  # saved from user input
-currency = ""  # saved from user input
+token = "24fb0e00-85c8-4d71-9393-a534abf1b3cd"  # saved from user input
+currency = "EUR/€"  # saved from user input
 
 
 def get_info():
@@ -75,7 +75,13 @@ def get_info():
 
 def get_holdings(token):
     url = 'https://api.coinhodler.io/v1/hodler/rows'
-    req = requests.get(url, headers={'X-Access-Token': token})
+    try:
+        req = requests.get(url, headers={'X-Access-Token': token})
+    except requests.ConnectionError:
+        print("...")
+        print("---")
+        print("No internet connection")
+        sys.exit()
     holdings = json.loads(req.text)['data']['rows']
     return holdings
 
